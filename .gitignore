@@ -1,0 +1,7 @@
+*.pptx
+*.zip
+
+cs-para-factor/bin
+cs-para-factor/obj
+cs-para-factor/.vscode
+cs-para-factor/.vs
