@@ -199,7 +199,9 @@ namespace ParaFactor
                 {
                     // display the result
                     n.label.Content = n.resultAsString();
-                    n.label.Background = n.result.Length > 1 || n.result[0].exponent > 1 ? Brushes.LightGreen : Brushes.LightYellow;
+                    n.label.Background = n.result.Length > 1 || n.result[0].exponent > 1
+                        ? Brushes.LightGreen
+                        : Brushes.LightYellow;
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
 
