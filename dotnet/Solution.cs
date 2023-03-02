@@ -11,7 +11,7 @@ namespace dns_netcore
 	{
 		private readonly IDNSClient dnsClient;
 		private readonly IReadOnlyList<IP4Addr> rootServers;
-		private readonly Dictionary<string, IP4Addr> currentlyResolving = new();
+		private readonly Dictionary<string, Task<IP4Addr>> currentlyResolving = new();
 		private readonly Dictionary<IP4Addr, int> rootServersLoad = new();
 
 		public RecursiveResolver(IDNSClient client)
@@ -42,21 +42,44 @@ namespace dns_netcore
 			 * Also you may change this method to async (it will work with the interface).
 			 */
 
-			var subdomains = domain.Split('.');
+			var subdomains = domain.Split('.').ToArray();
+			var subdomainsLength = subdomains.Length;
+			var allSubdomains = Enumerable.Range(0, subdomains.Length)
+				.Select( index => subdomains[(subdomainsLength-index)..] )
+				.Select( subdomainsParts => String.Join('.', subdomainsParts) )
+				.ToArray();
 			Array.Reverse(subdomains);
-			// TODO: check if subdomain is being computed
+
 			// TODO: check if already computed IP is valid
+			// How though?
 
 			// DONE: balance root servers' load
-			var serverToAsk = await AskRootServer(subdomains[0]);
-			
-			foreach (var subdomain in subdomains[1..])
+			var res = await AskRootServer(subdomains[0]);
+			this.currentlyResolving[allSubdomains[0]] = Task.FromResult(res);
+
+			for (int i = 1; i < subdomainsLength; i++)
 			{
-				var newServerToAsk = await dnsClient.Resolve(serverToAsk, subdomain);
-				serverToAsk = newServerToAsk;
+				var subdomain = subdomains[i];
+				var wholeSubdomain = allSubdomains[i];
+				// ? TODO: check if subdomain is being computed
+				if ( this.currentlyResolving.TryGetValue(wholeSubdomain, out var val) ) {
+					res = await val;
+				}
+				else {
+					this.currentlyResolving[wholeSubdomain] = dnsClient.Resolve(res, subdomain);
+					res = await this.currentlyResolving[wholeSubdomain];
+				}
 			}
 
-			return serverToAsk;
+			// ? TODO: remove addresses for all subdomains
+			// what if we remove subpart of second resolving?
+			foreach (var subdomain in allSubdomains)
+			{
+				if ( this.currentlyResolving.TryGetValue(subdomain, out var val) )
+					this.currentlyResolving.Remove(subdomain);
+			}
+
+			return res;
 		}
 	}
 }
