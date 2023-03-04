@@ -10,3 +10,4 @@ dotnet/bin
 dotnet/obj
 dotnet/.vscode
 dotnet/.vs
+dotnet/*.log
