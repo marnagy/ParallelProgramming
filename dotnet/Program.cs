@@ -98,6 +98,11 @@ namespace dns_netcore
 
 			Console.WriteLine("{0}", ThreadPool.ThreadCount);
 
+			// RunTestBatch(resolver, new string[] {
+			// 	"www.ksi.ms.mff.cuni.cz",
+			// 	"ksi.ms.mff.cuni.cz",
+			// });
+
 			RunTestBatch(resolver, new string[] {
 				"www.ksi.ms.mff.cuni.cz",
 				"ksi.ms.mff.cuni.cz",
