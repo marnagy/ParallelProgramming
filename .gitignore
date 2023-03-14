@@ -1,7 +1,14 @@
 *.pptx
+*.ppt
 *.zip
 
 cs-para-factor/bin
 cs-para-factor/obj
 cs-para-factor/.vscode
 cs-para-factor/.vs
+
+dotnet/bin
+dotnet/obj
+dotnet/.vscode
+dotnet/.vs
+dotnet/*.log
